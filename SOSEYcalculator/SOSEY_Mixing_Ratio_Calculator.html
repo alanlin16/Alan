@@ -29,20 +29,20 @@
     <img src="SOSEY.png" alt="SOSEY Logo">
   </div>
 
-  <h2>SOSEY雙液點膠控制器混合比例計算器</h2>
+  <h2>SOSEY雙液點膠控制器混合比例計算器<br>SOSEY Mixing Ratio Calculator</h2>
 
-  <label>目前 A 劑(Hardener)重量 (g)：</label>
+  <label>目前 A 劑重量 (g)：<br>Current weight of A glue (g):</label>
   <input type="number" id="aWeight" step="0.01">
 
-  <label>目前 B 劑(Resin)重量 (g)：</label>
+  <label>目前 B 劑重量 (g)：<br>Current weight of B glue (g):</label>
   <input type="number" id="bWeight" step="0.01">
 
-  <label>目前控制器混合比例(Mixing Ratio) (%)：</label>
+  <label>目前控制器混合比例(%)：<br>Current Mixing Ratio(%):</label>
   <input type="number" id="currentBSetting" step="0.01">
 
-  <label>需求的 A : B 比例（例如 2:1 請填寫 2 與 1）：</label><br>
-  <input type="number" id="desiredA" step="0.01" placeholder="A 比例值，例如 2">
-  <input type="number" id="desiredB" step="0.01" placeholder="B 比例值，例如 1">
+  <label>需求的 A : B 比例（例如 2:1 請填寫 2 與 1）：<br>Required A:B Ratio (e.g., 2 and 1 for a 2:1 ratio):</label><br>
+  <input type="number" id="desiredA" step="0.01" placeholder="A 比例值，例如 2 (A ratio value, e.g., 2)">
+  <input type="number" id="desiredB" step="0.01" placeholder="B 比例值，例如 1 (B ratio value, e.g., 1)">
 
   <button onclick="calculate()">SOSEY GO!</button>
 
@@ -65,7 +65,7 @@
       const newSetting = currentBSetting * ratio;
 
       document.getElementById('result').innerHTML =
-        `請將混合比例(Mixing Ratio)調整為：${newSetting.toFixed(2)}%<br>如有任何問題請與 SOSEY 帥哥工程師-何吉祥聯絡。`;
+        `請將混合比例(Mixing Ratio)調整為：${newSetting.toFixed(2)}%<br>如有任何問題請與 SOSEY 帥哥工程師-何吉祥聯絡。<br><br><br>Please adjust the mixing ratio as follows: ${newSetting.toFixed(2)}%<br>If you have any questions, please contact SOSEY’s handsome engineer – Mr. Ho Jixiang.`;
     }
   </script>
 </body>
