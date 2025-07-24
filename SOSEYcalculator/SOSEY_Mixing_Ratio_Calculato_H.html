@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>SOSEY雙液點膠控制器混合比例計算</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+    input { margin: 5px 0; width: 100%; padding: 8px; }
+    button { padding: 10px 15px; font-size: 16px; margin-top: 10px; }
+    #result { margin-top: 20px; font-weight: bold; color: green; }
+
+    /* 加入 Logo 樣式 */
+    .logo-container {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+    }
+
+    .logo-container img {
+      height: 80px; /* 設定較大 Logo 大小，可再調整 */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SOSEY 公司 Logo -->
+  <div class="logo-container">
+    <img src="SOSEY.png" alt="SOSEY Logo">
+  </div>
+
+  <h2>SOSEY雙液點膠控制器混合比例計算器<br>SOSEY Mixing Ratio Calculator</h2>
+
+  <label>目前 A 劑重量 (g)：<br>Current weight of A glue (g):</label>
+  <input type="number" id="aWeight" step="0.01">
+
+  <label>目前 B 劑重量 (g)：<br>Current weight of B glue (g):</label>
+  <input type="number" id="bWeight" step="0.01">
+
+  <label>目前控制器混合比例(%)：<br>Current Mixing Ratio(%):</label>
+  <input type="number" id="currentBSetting" step="0.01">
+
+  <label>需求的 A : B 比例（例如 2:1 請填寫 2 與 1）：<br>Required A:B Ratio (e.g., 2 and 1 for a 2:1 ratio):</label><br>
+  <input type="number" id="desiredA" step="0.01" placeholder="A 比例值，例如 2 (A ratio value, e.g., 2)">
+  <input type="number" id="desiredB" step="0.01" placeholder="B 比例值，例如 1 (B ratio value, e.g., 1)">
+
+  <button onclick="calculate()">SOSEY GO!</button>
+
+  <div id="result"></div>
+
+  <script>
+    function calculate() {
+      const aWeight = parseFloat(document.getElementById('aWeight').value);
+      const bWeight = parseFloat(document.getElementById('bWeight').value);
+      const currentBSetting = parseFloat(document.getElementById('currentBSetting').value);
+      const desiredA = parseFloat(document.getElementById('desiredA').value);
+      const desiredB = parseFloat(document.getElementById('desiredB').value);
+
+      if (isNaN(aWeight) || isNaN(bWeight) || isNaN(currentBSetting) || isNaN(desiredA) || isNaN(desiredB)) {
+        document.getElementById('result').innerHTML = "<span style='color: red;'>請填寫所有欄位。</span>";
+        return;
+      }
+
+      const ratio = (desiredB / desiredA) * aWeight / bWeight;
+      const newSetting = currentBSetting * ratio;
+
+      document.getElementById('result').innerHTML =
+        `請將混合比例(Mixing Ratio)調整為：${newSetting.toFixed(2)}%<br>如有任何問題請與 SOSEY 帥哥工程師-何吉祥聯絡。<br><br><br>Please adjust the mixing ratio as follows: ${newSetting.toFixed(2)}%<br>If you have any questions, please contact SOSEY’s handsome engineer – Mr. Ho Jixiang.`;
+    }
+  </script>
+</body>
+</html>
