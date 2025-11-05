@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOSEY TSP Series出膠量計算器</title>
+    <style>
+        /* CSS 樣式：美化介面 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* 確保 padding 不會增加寬度 */
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border: 1px solid #d4edda;
+            border-radius: 5px;
+            font-size: 1.1em;
+        }
+        .warning {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #007bff;
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>SOSEY TSP Series出膠量計算器</h1>
+
+    <label for="modelSelect">選擇點膠機型號:</label>
+    <select id="modelSelect" onchange="updateMaxOutputInfo()">
+        </select>
+    <div id="maxOutputInfo" class="info"></div>
+
+    <label for="requiredOutput">輸入需求的點膠量 (ml/s):</label>
+    <input type="number" id="requiredOutput" placeholder="例如：0.18" step="any" min="0" value="0.18">
+
+    <button onclick="calculatePercentage()">計算所需百分比</button>
+
+    <div id="result">
+        等待輸入...
+    </div>
+</div>
+
+<script>
+    // 點膠機型號與最大出膠量的對應字典 (單位: ml/s)
+    const MODEL_MAX_OUTPUT = {
+        "TSP-015": 0.06,
+        "TSP-050": 0.20,
+        "TSP-150": 0.60,
+        "TSP-500": 1.80,
+        "TSP-1000": 3.6,
+        "TSP-2000": 7.2
+    };
+
+    // DOM 元素參考
+    const modelSelect = document.getElementById('modelSelect');
+    const requiredOutputInput = document.getElementById('requiredOutput');
+    const resultDiv = document.getElementById('result');
+    const maxOutputInfoDiv = document.getElementById('maxOutputInfo');
+
+    /**
+     * 初始化下拉式選單，將所有機型填充進去。
+     */
+    function initializeSelect() {
+        for (const model in MODEL_MAX_OUTPUT) {
+            const maxOutput = MODEL_MAX_OUTPUT[model];
+            const option = document.createElement('option');
+            option.value = model;
+            option.textContent = `${model} (Max: ${maxOutput} ml/s)`;
+            modelSelect.appendChild(option);
+        }
+        // 初始化後更新一次最大出膠量提示
+        updateMaxOutputInfo();
+    }
+
+    /**
+     * 更新當前選中機型的最大出膠量提示。
+     */
+    function updateMaxOutputInfo() {
+        const selectedModel = modelSelect.value;
+        const maxOutput = MODEL_MAX_OUTPUT[selectedModel];
+        maxOutputInfoDiv.textContent = `當前選用機型 ${selectedModel} 的最大出膠量: ${maxOutput} ml/s`;
+    }
+
+    /**
+     * 執行核心計算邏輯。
+     */
+    function calculatePercentage() {
+        const selectedModel = modelSelect.value;
+        const requiredOutput = parseFloat(requiredOutputInput.value);
+
+        // 輸入驗證
+        if (isNaN(requiredOutput) || requiredOutput <= 0) {
+            resultDiv.innerHTML = '<span class="warning">錯誤：請輸入有效的、大於 0 的點膠量。</span>';
+            return;
+        }
+
+        const maxOutput = MODEL_MAX_OUTPUT[selectedModel];
+
+        // 核心計算: 百分比 = (需求量 / 最大量) * 100
+        const percentage = (requiredOutput / maxOutput) * 100;
+
+        let resultHTML = `
+            <p><strong>選用機型:</strong> ${selectedModel}</p>
+            <p><strong>最大出膠量:</strong> ${maxOutput.toFixed(3)} ml/s</p>
+            <p><strong>需求點膠量:</strong> ${requiredOutput.toFixed(3)} ml/s</p>
+            <hr>
+        `;
+
+        // 輸出結果
+        if (percentage <= 100) {
+            resultHTML += `<p><strong>✅ 控制器應設定的百分比 (理論值):</strong> <span style="font-size:1.5em; color:#007bff;">${percentage.toFixed(2)} %</span></p>`;
+        } else {
+            // 超出最大值時給予警告
+            resultHTML += `
+                <p><strong>⚠️ 理論計算值:</strong> <span class="warning" style="font-size:1.5em;">${percentage.toFixed(2)} %</span></p>
+                <p class="warning">警告：計算結果超過 100%。此機型無法達到 ${requiredOutput.toFixed(3)} ml/s 的出膠量。</p>
+                <p class="warning">請考慮更換更大出膠量的機型。</p>
+            `;
+        }
+
+        resultDiv.innerHTML = resultHTML;
+    }
+
+    // 頁面載入完成後，執行初始化函式
+    window.onload = initializeSelect;
+</script>
+
+</body>
+</html>
