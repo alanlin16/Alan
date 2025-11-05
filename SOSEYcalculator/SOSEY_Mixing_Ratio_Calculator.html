@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOSEY 雙液點膠比例計算器</title>
+    <style>
+        /* 1. 基礎樣式與版面配置 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5; /* 輕柔的背景色 */
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 550px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px; /* 圓角設計 */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* 提升質感陰影 */
+        }
+
+        /* 2. 標題與 Logo 樣式 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative; /* 為了相對定位 Logo */
+        }
+
+        h2 {
+            color: #007bff; /* SOSEY 主色調藍色 (範例) */
+            margin-top: 0;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .subtitle {
+            font-size: 1em;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .logo-img {
+            height: 50px; /* 調整 Logo 大小 */
+            margin-bottom: 10px;
+        }
+
+        /* 3. 輸入欄位樣式 */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #495057;
+            line-height: 1.5;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* 4. A:B 比例輸入並排 */
+        .ratio-inputs {
+            display: flex;
+            gap: 15px; /* 輸入框間的間距 */
+        }
+
+        .ratio-inputs input {
+            width: calc(50% - 7.5px); /* 扣除 gap 的一半 */
+        }
+
+        /* 5. 按鈕樣式 */
+        button {
+            background-color: #28a745; /* 綠色，代表 GO/確認 */
+            color: white;
+            padding: 12px 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* 6. 結果顯示樣式 */
+        #result {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e2f0fb; /* 淺藍色背景，突出結果 */
+            border-radius: 8px;
+            border-left: 5px solid #007bff;
+            line-height: 1.8;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .new-setting {
+            font-size: 1.8em;
+            color: #d63384; /* 醒目的桃紅色突出計算結果 */
+            font-weight: bold;
+            display: block;
+            margin: 10px 0;
+        }
+        
+        .error {
+            color: #dc3545; /* 錯誤提示紅色 */
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img class="logo-img" src="SOSEY.png" alt="SOSEY Logo">
+        <h2>SOSEY 雙液點膠控制器混合比例計算器</h2>
+        <div class="subtitle">SOSEY Mixing Ratio Calculator</div>
+    </div>
+
+    <div class="input-group">
+        <label for="aWeight">目前 A 劑重量 (g)：<br>Current weight of A glue (g):</label>
+        <input type="number" id="aWeight" step="0.01" placeholder="例如: 100.00">
+    </div>
+
+    <div class="input-group">
+        <label for="bWeight">目前 B 劑重量 (g)：<br>Current weight of B glue (g):</label>
+        <input type="number" id="bWeight" step="0.01" placeholder="例如: 50.00">
+    </div>
+
+    <div class="input-group">
+        <label for="currentBSetting">目前控制器混合比例 (%)：<br>Current Mixing Ratio (%):</label>
+        <input type="number" id="currentBSetting" step="0.01" placeholder="例如: 50.00 (代表 B 佔 50%)">
+    </div>
+
+    <div class="input-group">
+        <label>需求的 A : B 比例（例如 2:1 請填寫 2 與 1）：<br>Required A:B Ratio (e.g., 2 and 1 for a 2:1 ratio):</label>
+        <div class="ratio-inputs">
+            <input type="number" id="desiredA" step="0.01" placeholder="A 比例值，例如 2">
+            <input type="number" id="desiredB" step="0.01" placeholder="B 比例值，例如 1">
+        </div>
+    </div>
+
+    <button onclick="calculate()">SOSEY GO! 計算新比例</button>
+
+    <div id="result">
+        點擊上方按鈕計算結果...
+    </div>
+</div>
+
+<script>
+    function calculate() {
+        const aWeight = parseFloat(document.getElementById('aWeight').value);
+        const bWeight = parseFloat(document.getElementById('bWeight').value);
+        const currentBSetting = parseFloat(document.getElementById('currentBSetting').value);
+        const desiredA = parseFloat(document.getElementById('desiredA').value);
+        const desiredB = parseFloat(document.getElementById('desiredB').value);
+        const resultDiv = document.getElementById('result');
+
+        // 輸入驗證
+        if (isNaN(aWeight) || isNaN(bWeight) || isNaN(currentBSetting) || isNaN(desiredA) || isNaN(desiredB)) {
+            resultDiv.innerHTML = "<span class='error'>錯誤：請填寫所有欄位。</span>";
+            return;
+        }
+
+        if (desiredA <= 0 || desiredB <= 0 || aWeight <= 0 || bWeight <= 0) {
+             resultDiv.innerHTML = "<span class='error'>錯誤：所有比例與重量值必須大於零。</span>";
+            return;
+        }
+
+        // 核心計算公式
+        // ratio = (Desired B / Desired A) * (Current A Weight / Current B Weight)
+        // 新設定值 = 舊設定值 * ratio
+        const ratio = (desiredB / desiredA) * (aWeight / bWeight);
+        const newSetting = currentBSetting * ratio;
+
+        // 輸出結果
+        resultDiv.innerHTML = `
+            <p>請將**混合比例(Mixing Ratio)**調整為：</p>
+            <span class="new-setting">${newSetting.toFixed(2)} %</span>
+            <p style="margin-top:15px;">
+                如有任何問題請與 SOSEY 聯絡。<br>
+                Please adjust the mixing ratio as follows: ${newSetting.toFixed(2)}%<br>
+                If you have any questions, please contact SOSEY.
+            </p>
+        `;
+    }
+</script>
+</body>
+</html>
